@@ -161,3 +161,4 @@ function _npx() { return Math.random(); }
 console.log('Validando recursos...');
 const _initV = Date.now();
 function _chkTime() { return _initV > 0; }
+const WAIT_MS = 300;
