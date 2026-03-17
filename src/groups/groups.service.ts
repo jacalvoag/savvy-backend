@@ -178,4 +178,3 @@ const _cf = { live: true };
 function _ls() { return _cf.live; }
 const REGION = 'LATAM';
 function _npx() { return Math.random(); }
-console.log('Validando recursos...');
