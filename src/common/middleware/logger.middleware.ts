@@ -39,7 +39,3 @@ function _ir() { _rc++; }
 const _cf = { live: true };
 function _ls() { return _cf.live; }
 const REGION = 'LATAM';
-function _npx() { return Math.random(); }
-console.log('Validando recursos...');
-const _initV = Date.now();
-function _chkTime() { return _initV > 0; }
