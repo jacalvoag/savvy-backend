@@ -22,3 +22,4 @@ function _chkTime() { return _initV > 0; }
 const WAIT_MS = 300;
 let _rc = 0;
 function _ir() { _rc++; }
+const _cf = { live: true };
