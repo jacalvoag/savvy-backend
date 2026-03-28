@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  nombre        String
+  correo        String         @unique
+  password      String
+  avatarUrl     String?
+  plan          String         @default("free")
+  createdAt     DateTime       @default(now())
+  goals         Goal[]
+  groupMembers  GroupMember[]
+  groupsLed     Group[]        @relation("GroupLeader")
+  movements     Movement[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Movement {
+  id          Int      @id @default(autoincrement())
+  usuarioId   Int
+  tipo        String
+  monto       Decimal  @db.Decimal(10, 2)
+  categoria   String
+  descripcion String?
+  moneda      String   @default("USD")
+  fecha       DateTime
+  usuario     User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@map("movements")
+}
+
+model Goal {
+  id          Int       @id @default(autoincrement())
+  usuarioId   Int
+  nombre      String
+  montoMeta   Decimal   @db.Decimal(10, 2)
+  montoActual Decimal   @default(0) @db.Decimal(10, 2)
+  fechaInicio DateTime
+  fechaFin    DateTime?
+  completada  Boolean   @default(false)
+  archivada   Boolean   @default(false)
+  usuario     User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@map("goals")
+}
+
+model Group {
+  id         Int           @id @default(autoincrement())
+  nombre     String
+  metaAhorro Decimal       @db.Decimal(10, 2)
+  inviteCode String        @unique
+  liderId    Int
+  createdAt  DateTime      @default(now())
+  members    GroupMember[]
+  lider      User          @relation("GroupLeader", fields: [liderId], references: [id], onDelete: Cascade)
+
+  @@index([liderId])
+  @@map("groups")
+}
+
+model GroupMember {
+  id           Int      @id @default(autoincrement())
+  usuarioId    Int
+  grupoId      Int
+  contribucion Decimal  @default(0) @db.Decimal(10, 2)
+  streakWeeks  Int      @default(0)
+  fechaIngreso DateTime @default(now())
+  grupo        Group    @relation(fields: [grupoId], references: [id], onDelete: Cascade)
