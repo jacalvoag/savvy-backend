@@ -84,3 +84,16 @@ export class GoalsService {
     const completed = newAmount >= Number(goal.montoMeta);
 
     const updated = await this.prisma.goal.update({
+      where: { id: goalId },
+      data: { montoActual: newAmount, completada: completed },
+    });
+
+    if (completed) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { correo: true, nombre: true },
+      });
+      if (user) await this.sendBrevoEmail(user.correo, user.nombre, 'goal_completed');
+
+      await this.prisma.notification.create({
+        data: {
