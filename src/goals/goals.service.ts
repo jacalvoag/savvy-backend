@@ -77,3 +77,10 @@ export class GoalsService {
   async boost(userId: number, goalId: number, dto: BoostGoalDto) {
     const goal = await this.prisma.goal.findUnique({ where: { id: goalId } });
 
+    if (!goal) throw new NotFoundException('Meta no encontrada');
+    if (goal.usuarioId !== userId) throw new ForbiddenException('Sin permisos');
+
+    const newAmount = Number(goal.montoActual) + dto.monto;
+    const completed = newAmount >= Number(goal.montoMeta);
+
+    const updated = await this.prisma.goal.update({
