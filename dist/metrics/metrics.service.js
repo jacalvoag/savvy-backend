@@ -77,3 +77,82 @@ let MetricsService = class MetricsService {
         }
         const movements = await this.prisma.movement.findMany({
             where: { usuarioId: userId, fecha: { gte: startDate } },
+            orderBy: { fecha: 'asc' },
+        });
+        const buckets = new Map();
+        for (const m of movements) {
+            const fecha = new Date(m.fecha);
+            let label;
+            if (groupBy === 'hour') {
+                label = `${String(fecha.getHours()).padStart(2, '0')}:00`;
+            }
+            else if (groupBy === 'day') {
+                label = fecha.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' });
+            }
+            else if (groupBy === 'week') {
+                const weekNum = Math.ceil(fecha.getDate() / 7);
+                label = `S${weekNum} ${fecha.toLocaleDateString('es-MX', { month: 'short' })}`;
+            }
+            else {
+                label = fecha.toLocaleDateString('es-MX', { month: 'short', year: '2-digit' });
+            }
+            const signed = m.tipo === 'ingreso' ? Number(m.monto) : -Number(m.monto);
+            buckets.set(label, (buckets.get(label) ?? 0) + signed);
+        }
+        const points = [];
+        let running = 0;
+        for (const [label, delta] of buckets.entries()) {
+            running += delta;
+            points.push({ label, value: Math.round(running * 100) / 100 });
+        }
+        return points;
+    }
+    async getInsight(userId) {
+        const goals = await this.prisma.goal.findMany({
+            where: { usuarioId: userId, completada: false, archivada: false },
+            orderBy: { montoActual: 'desc' },
+        });
+        if (goals.length === 0) {
+            return {
+                mensaje: 'Crea tu primera meta de ahorro para recibir recomendaciones personalizadas.',
+                mesesRestantes: 0,
+                metaNombre: '',
+            };
+        }
+        const closest = goals.reduce((best, g) => {
+            const bestPct = Number(best.montoActual) / Number(best.montoMeta);
+            const gPct = Number(g.montoActual) / Number(g.montoMeta);
+            return gPct > bestPct ? g : best;
+        });
+        const remaining = Number(closest.montoMeta) - Number(closest.montoActual);
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        const recentMovements = await this.prisma.movement.findMany({
+            where: { usuarioId: userId, fecha: { gte: threeMonthsAgo } },
+        });
+        let netSavings = 0;
+        for (const m of recentMovements) {
+            netSavings += m.tipo === 'ingreso' ? Number(m.monto) : -Number(m.monto);
+        }
+        const monthlyRate = netSavings / 3;
+        const mesesRestantes = monthlyRate > 0 ? Math.ceil(remaining / monthlyRate) : 99;
+        const porcentaje = Math.round((Number(closest.montoActual) / Number(closest.montoMeta)) * 100);
+        return {
+            mensaje: `Tu meta "${closest.nombre}" está al ${porcentaje}%. ¡Sigue así para alcanzarla!`,
+            mesesRestantes: Math.min(mesesRestantes, 99),
+            metaNombre: closest.nombre,
+        };
+    }
+    async getMxnRate() {
+        const apiKey = this.configService.get('EXCHANGERATE_API_KEY');
+        const fallback = 17.5;
+        if (!apiKey)
+            return fallback;
+        try {
+            const res = await fetch(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/USD`);
+            if (!res.ok)
+                return fallback;
+            const data = (await res.json());
+            return data?.conversion_rates?.MXN ?? fallback;
+        }
+        catch {
