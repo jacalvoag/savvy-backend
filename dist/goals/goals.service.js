@@ -83,3 +83,67 @@ let GoalsService = class GoalsService {
         const newAmount = Number(goal.montoActual) + dto.monto;
         const completed = newAmount >= Number(goal.montoMeta);
         const updated = await this.prisma.goal.update({
+            where: { id: goalId },
+            data: { montoActual: newAmount, completada: completed },
+        });
+        if (completed) {
+            const user = await this.prisma.user.findUnique({
+                where: { id: userId },
+                select: { correo: true, nombre: true },
+            });
+            if (user)
+                await this.sendBrevoEmail(user.correo, user.nombre, 'goal_completed');
+            await this.prisma.notification.create({
+                data: {
+                    usuarioId: userId,
+                    tipo: 'goal_completed',
+                    mensaje: `¡Felicidades! Completaste tu meta "${goal.nombre}".`,
+                },
+            });
+        }
+        return serializeGoal(updated);
+    }
+    async archive(userId, goalId) {
+        const goal = await this.prisma.goal.findUnique({ where: { id: goalId } });
+        if (!goal)
+            throw new common_1.NotFoundException('Meta no encontrada');
+        if (goal.usuarioId !== userId)
+            throw new common_1.ForbiddenException('Sin permisos');
+        const updated = await this.prisma.goal.update({
+            where: { id: goalId },
+            data: { archivada: true },
+        });
+        return serializeGoal(updated);
+    }
+    async sendBrevoEmail(email, nombre, type) {
+        const apiKey = this.configService.get('BREVO_API_KEY');
+        if (!apiKey)
+            return;
+        const templates = {
+            goal_created: { subject: 'Nueva meta creada en Savvy', body: `Hola ${nombre}, tu nueva meta de ahorro ha sido registrada exitosamente.` },
+            goal_completed: { subject: '¡Meta completada!', body: `¡Felicidades ${nombre}! Has alcanzado tu meta de ahorro en Savvy.` },
+        };
+        const tpl = templates[type];
+        try {
+            await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sender: { name: 'Savvy', email: 'no-reply@savvy.app' },
+                    to: [{ email, name: nombre }],
+                    subject: tpl.subject,
+                    textContent: tpl.body,
+                }),
+            });
+        }
+        catch {
+        }
+    }
+};
+exports.GoalsService = GoalsService;
+exports.GoalsService = GoalsService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        config_1.ConfigService])
+], GoalsService);
+//# sourceMappingURL=goals.service.js.map
