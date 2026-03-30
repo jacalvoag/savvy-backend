@@ -76,3 +76,64 @@ let GroupsService = class GroupsService {
             liderId: String(group.liderId),
             createdAt: group.createdAt,
             totalAcumulado,
+            porcentajeGrupal: Math.round(porcentajeGrupal * 100) / 100,
+            miembros,
+        };
+    }
+    async join(userId, dto) {
+        const group = await this.prisma.group.findUnique({ where: { inviteCode: dto.inviteCode } });
+        if (!group)
+            throw new common_1.NotFoundException('Código de invitación inválido');
+        const existing = await this.prisma.groupMember.findUnique({
+            where: { usuarioId_grupoId: { usuarioId: userId, grupoId: group.id } },
+        });
+        if (existing)
+            throw new common_1.ConflictException('Ya eres miembro de este grupo');
+        await this.prisma.groupMember.create({ data: { usuarioId: userId, grupoId: group.id } });
+        return serializeGroup(group);
+    }
+    async contribute(userId, groupId, dto) {
+        const member = await this.prisma.groupMember.findUnique({
+            where: { usuarioId_grupoId: { usuarioId: userId, grupoId: groupId } },
+        });
+        if (!member)
+            throw new common_1.ForbiddenException('No eres miembro de este grupo');
+        const newContribucion = Number(member.contribucion) + dto.monto;
+        await this.prisma.groupMember.update({
+            where: { usuarioId_grupoId: { usuarioId: userId, grupoId: groupId } },
+            data: { contribucion: newContribucion, streakWeeks: { increment: 1 } },
+        });
+        return this.getDetail(groupId, userId);
+    }
+    async deleteGroup(userId, groupId) {
+        const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+        if (!group)
+            throw new common_1.NotFoundException('Grupo no encontrado');
+        if (group.liderId !== userId)
+            throw new common_1.ForbiddenException('Solo el líder puede eliminar el grupo');
+        await this.prisma.group.delete({ where: { id: groupId } });
+        return { message: 'Grupo eliminado' };
+    }
+    async leaveGroup(userId, groupId) {
+        const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+        if (!group)
+            throw new common_1.NotFoundException('Grupo no encontrado');
+        if (group.liderId === userId)
+            throw new common_1.ForbiddenException('El líder no puede salir del grupo sin transferir el liderazgo');
+        const member = await this.prisma.groupMember.findUnique({
+            where: { usuarioId_grupoId: { usuarioId: userId, grupoId: groupId } },
+        });
+        if (!member)
+            throw new common_1.ForbiddenException('No eres miembro de este grupo');
+        await this.prisma.groupMember.delete({
+            where: { usuarioId_grupoId: { usuarioId: userId, grupoId: groupId } },
+        });
+        return { message: 'Has salido del grupo' };
+    }
+};
+exports.GroupsService = GroupsService;
+exports.GroupsService = GroupsService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+], GroupsService);
+//# sourceMappingURL=groups.service.js.map
