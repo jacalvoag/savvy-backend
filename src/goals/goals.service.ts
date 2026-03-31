@@ -97,3 +97,16 @@ export class GoalsService {
 
       await this.prisma.notification.create({
         data: {
+          usuarioId: userId,
+          tipo: 'goal_completed',
+          mensaje: `¡Felicidades! Completaste tu meta "${goal.nombre}".`,
+        },
+      });
+    }
+
+    return serializeGoal(updated);
+  }
+
+  async archive(userId: number, goalId: number) {
+    const goal = await this.prisma.goal.findUnique({ where: { id: goalId } });
+
