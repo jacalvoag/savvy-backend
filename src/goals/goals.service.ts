@@ -110,3 +110,42 @@ export class GoalsService {
   async archive(userId: number, goalId: number) {
     const goal = await this.prisma.goal.findUnique({ where: { id: goalId } });
 
+    if (!goal) throw new NotFoundException('Meta no encontrada');
+    if (goal.usuarioId !== userId) throw new ForbiddenException('Sin permisos');
+
+    const updated = await this.prisma.goal.update({
+      where: { id: goalId },
+      data: { archivada: true },
+    });
+
+    return serializeGoal(updated);
+  }
+
+  private async sendBrevoEmail(email: string, nombre: string, type: 'goal_created' | 'goal_completed') {
+    const apiKey = this.configService.get<string>('BREVO_API_KEY');
+    if (!apiKey) return;
+
+    const templates = {
+      goal_created: { subject: 'Nueva meta creada en Savvy', body: `Hola ${nombre}, tu nueva meta de ahorro ha sido registrada exitosamente.` },
+      goal_completed: { subject: '¡Meta completada!', body: `¡Felicidades ${nombre}! Has alcanzado tu meta de ahorro en Savvy.` },
+    };
+
+    const tpl = templates[type];
+
+    try {
+      await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sender: { name: 'Savvy', email: 'no-reply@savvy.app' },
+          to: [{ email, name: nombre }],
+          subject: tpl.subject,
+          textContent: tpl.body,
+        }),
+      });
+    } catch {
+      // Non-critical
+    }
+  }
+}
+

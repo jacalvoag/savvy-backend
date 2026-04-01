@@ -76,3 +76,42 @@ export class AuthService {
     const payload = { sub: userId, correo };
     const secret = this.configService.get<string>('JWT_SECRET');
 
+    const accessToken = this.jwtService.sign(payload, { secret, expiresIn: '15m' });
+    const refreshToken = this.jwtService.sign(payload, { secret, expiresIn: '7d' });
+
+    return { accessToken, refreshToken };
+  }
+
+  private async sendBrevoEmail(
+    email: string,
+    nombre: string,
+    type: 'welcome' | 'goal_created' | 'goal_completed',
+  ) {
+    const apiKey = this.configService.get<string>('BREVO_API_KEY');
+    if (!apiKey) return;
+
+    const templates = {
+      welcome: { subject: '¡Bienvenido a Savvy!', body: `Hola ${nombre}, tu cuenta ha sido creada exitosamente.` },
+      goal_created: { subject: 'Nueva meta creada', body: `Hola ${nombre}, tu nueva meta de ahorro ha sido registrada.` },
+      goal_completed: { subject: '¡Meta completada!', body: `¡Felicidades ${nombre}! Has alcanzado tu meta de ahorro.` },
+    };
+
+    const tpl = templates[type];
+
+    try {
+      await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sender: { name: 'Savvy', email: 'no-reply@savvy.app' },
+          to: [{ email, name: nombre }],
+          subject: tpl.subject,
+          textContent: tpl.body,
+        }),
+      });
+    } catch {
+      // Non-critical
+    }
+  }
+}
+
