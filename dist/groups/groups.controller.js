@@ -76,3 +76,37 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, join_group_dto_1.JoinGroupDto]),
     __metadata("design:returntype", void 0)
+], GroupsController.prototype, "join", null);
+__decorate([
+    (0, common_1.Patch)(':id/contribute'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number, contribute_dto_1.ContributeDto]),
+    __metadata("design:returntype", void 0)
+], GroupsController.prototype, "contribute", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:returntype", void 0)
+], GroupsController.prototype, "deleteGroup", null);
+__decorate([
+    (0, common_1.Delete)(':id/leave'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:returntype", void 0)
+], GroupsController.prototype, "leaveGroup", null);
+exports.GroupsController = GroupsController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Controller)('groups'),
+    __metadata("design:paramtypes", [groups_service_1.GroupsService])
+], GroupsController);
+//# sourceMappingURL=groups.controller.js.map

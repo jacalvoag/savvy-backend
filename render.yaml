@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: savvy-backend
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: npm install && npm run build:prod
+    startCommand: npx prisma migrate deploy && npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: savvy-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 4000
+      - key: CORS_ORIGIN
+        value: https://savvy-frontend.vercel.app
+      - key: BREVO_API_KEY
+        sync: false
+      - key: EXCHANGERATE_API_KEY
+        sync: false
+    healthCheckPath: /api
+
+databases:
+  - name: savvy-db
+    databaseName: savvy
+    user: savvy_user
+    plan: free
+    region: oregon
