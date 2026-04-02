@@ -28,3 +28,36 @@ let AuthController = class AuthController {
     login(dto) {
         return this.authService.login(dto);
     }
+    refresh(dto) {
+        return this.authService.refresh(dto.refreshToken);
+    }
+};
+exports.AuthController = AuthController;
+__decorate([
+    (0, common_1.Post)('register'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [register_dto_1.RegisterDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "register", null);
+__decorate([
+    (0, common_1.Post)('login'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [login_dto_1.LoginDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "login", null);
+__decorate([
+    (0, common_1.Post)('refresh'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [refresh_dto_1.RefreshDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "refresh", null);
+exports.AuthController = AuthController = __decorate([
+    (0, common_1.Controller)('auth'),
+    __metadata("design:paramtypes", [auth_service_1.AuthService])
+], AuthController);
+//# sourceMappingURL=auth.controller.js.map
