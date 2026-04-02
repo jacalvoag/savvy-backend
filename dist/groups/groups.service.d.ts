@@ -18,3 +18,29 @@ export declare class GroupsService {
         porcentajeGrupal: number;
         miembros: {
             rank: number;
+            usuarioId: string;
+            nombre: string;
+            avatarUrl: string | undefined;
+            contribucion: number;
+            porcentaje: number;
+            streakWeeks: number;
+            isCurrentUser: boolean;
+        }[];
+    }>;
+    join(userId: number, dto: JoinGroupDto): Promise<any>;
+    contribute(userId: number, groupId: number, dto: ContributeDto): Promise<{
+        id: string;
+        nombre: string;
+        metaAhorro: number;
+        inviteCode: string;
+        liderId: string;
+        createdAt: Date;
+        totalAcumulado: number;
+        porcentajeGrupal: number;
+        miembros: {
+            rank: number;
+            usuarioId: string;
+            nombre: string;
+            avatarUrl: string | undefined;
+            contribucion: number;
+            porcentaje: number;
