@@ -76,3 +76,33 @@ let AuthService = class AuthService {
         const apiKey = this.configService.get('BREVO_API_KEY');
         if (!apiKey)
             return;
+        const templates = {
+            welcome: { subject: '¡Bienvenido a Savvy!', body: `Hola ${nombre}, tu cuenta ha sido creada exitosamente.` },
+            goal_created: { subject: 'Nueva meta creada', body: `Hola ${nombre}, tu nueva meta de ahorro ha sido registrada.` },
+            goal_completed: { subject: '¡Meta completada!', body: `¡Felicidades ${nombre}! Has alcanzado tu meta de ahorro.` },
+        };
+        const tpl = templates[type];
+        try {
+            await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sender: { name: 'Savvy', email: 'no-reply@savvy.app' },
+                    to: [{ email, name: nombre }],
+                    subject: tpl.subject,
+                    textContent: tpl.body,
+                }),
+            });
+        }
+        catch {
+        }
+    }
+};
+exports.AuthService = AuthService;
+exports.AuthService = AuthService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        jwt_1.JwtService,
+        config_1.ConfigService])
+], AuthService);
+//# sourceMappingURL=auth.service.js.map
