@@ -25,3 +25,27 @@ let NotificationsController = class NotificationsController {
     }
     markRead(req, id) {
         return this.notificationsService.markRead(req.user.id, id);
+    }
+};
+exports.NotificationsController = NotificationsController;
+__decorate([
+    (0, common_1.Get)(),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], NotificationsController.prototype, "getAll", null);
+__decorate([
+    (0, common_1.Patch)(':id/read'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:returntype", void 0)
+], NotificationsController.prototype, "markRead", null);
+exports.NotificationsController = NotificationsController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Controller)('notifications'),
+    __metadata("design:paramtypes", [notifications_service_1.NotificationsService])
+], NotificationsController);
+//# sourceMappingURL=notifications.controller.js.map
