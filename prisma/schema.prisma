@@ -77,3 +77,16 @@ model GroupMember {
   streakWeeks  Int      @default(0)
   fechaIngreso DateTime @default(now())
   grupo        Group    @relation(fields: [grupoId], references: [id], onDelete: Cascade)
+  usuario      User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, grupoId])
+  @@index([usuarioId])
+  @@index([grupoId])
+  @@map("group_members")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int
+  tipo      String
+  mensaje   String
