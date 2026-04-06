@@ -90,3 +90,11 @@ model Notification {
   usuarioId Int
   tipo      String
   mensaje   String
+  leida     Boolean  @default(false)
+  createdAt DateTime @default(now())
+  usuario   User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@map("notifications")
+}
+

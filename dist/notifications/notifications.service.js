@@ -34,3 +34,11 @@ let NotificationsService = class NotificationsService {
             data: { leida: true },
         });
         return { ...updated, id: String(updated.id), usuarioId: String(updated.usuarioId) };
+    }
+};
+exports.NotificationsService = NotificationsService;
+exports.NotificationsService = NotificationsService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+], NotificationsService);
+//# sourceMappingURL=notifications.service.js.map
