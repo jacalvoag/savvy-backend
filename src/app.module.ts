@@ -27,3 +27,15 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     GroupsModule,
     MetricsModule,
     NotificationsModule,
+  ],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_FILTER, useClass: HttpExceptionFilter },
+  ],
+})
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*splat');
+  }
+}
+

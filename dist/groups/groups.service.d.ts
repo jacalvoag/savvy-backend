@@ -44,3 +44,15 @@ export declare class GroupsService {
             avatarUrl: string | undefined;
             contribucion: number;
             porcentaje: number;
+            streakWeeks: number;
+            isCurrentUser: boolean;
+        }[];
+    }>;
+    deleteGroup(userId: number, groupId: number): Promise<{
+        message: string;
+    }>;
+    leaveGroup(userId: number, groupId: number): Promise<{
+        message: string;
+    }>;
+}
+
