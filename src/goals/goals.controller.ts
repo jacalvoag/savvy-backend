@@ -30,3 +30,17 @@ export class GoalsController {
   @Patch(':id/archive')
   archive(@Request() req, @Param('id', ParseIntPipe) id: number) {
     return this.goalsService.archive(req.user.id, id);
+  }
+
+  @Patch(':id')
+  update(@Request() req, @Param('id', ParseIntPipe) id: number, @Body() dto: Partial<CreateGoalDto>) {
+    return this.goalsService.update(req.user.id, id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  remove(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    return this.goalsService.delete(req.user.id, id);
+  }
+}
+
