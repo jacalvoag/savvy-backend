@@ -157,3 +157,18 @@ export class MetricsService {
 
   private async getMxnRate(): Promise<number> {
     const apiKey = this.configService.get<string>('EXCHANGERATE_API_KEY');
+    const fallback = 17.5;
+
+    if (!apiKey) return fallback;
+
+    try {
+      const res = await fetch(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/USD`);
+      if (!res.ok) return fallback;
+      const data = (await res.json()) as any;
+      return data?.conversion_rates?.MXN ?? fallback;
+    } catch {
+      return fallback;
+    }
+  }
+}
+
