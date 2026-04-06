@@ -24,3 +24,6 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     UsersModule,
     MovementsModule,
     GoalsModule,
+    GroupsModule,
+    MetricsModule,
+    NotificationsModule,
