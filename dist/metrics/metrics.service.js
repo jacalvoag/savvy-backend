@@ -156,3 +156,14 @@ let MetricsService = class MetricsService {
             return data?.conversion_rates?.MXN ?? fallback;
         }
         catch {
+            return fallback;
+        }
+    }
+};
+exports.MetricsService = MetricsService;
+exports.MetricsService = MetricsService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        config_1.ConfigService])
+], MetricsService);
+//# sourceMappingURL=metrics.service.js.map
