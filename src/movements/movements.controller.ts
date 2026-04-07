@@ -30,3 +30,6 @@ export class MovementsController {
   @HttpCode(HttpStatus.OK)
   remove(@Request() req, @Param('id', ParseIntPipe) id: number) {
     return this.movementsService.remove(req.user.id, id);
+  }
+}
+

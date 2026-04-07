@@ -36,3 +36,6 @@ export declare class AuthService {
         accessToken: string;
     }>;
     private generateTokens;
+    private sendBrevoEmail;
+}
+
