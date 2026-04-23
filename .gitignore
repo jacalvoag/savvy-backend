@@ -1,33 +1,58 @@
 # Dependencies
 node_modules/
+.pnpm-store/
 
 # Environment variables
 .env
 .env.local
 .env.*.local
+.env.development
+.env.production
+.env.staging
 
 # Build output
 dist/
+build/
 
-# Prisma generated client
+# Prisma
 node_modules/.prisma/
+prisma/dev.db
+prisma/dev.db-journal
 
 # Logs
 *.log
 npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
 
 # Editor
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-.next
-.DS_Store
-*.pem
-.env.development.local
-.env.test.local
-.env.production.local
-.vercel
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+.temp/
+.tmp/
+*.tmp
+
+# Deployment
+.vercel/
+.next/
+
+# Debug
+pids/
+*.pid
+*.seed
+*.pid.lock
